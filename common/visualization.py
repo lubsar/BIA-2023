@@ -5,37 +5,6 @@ from common.interval import *
 
 import matplotlib.animation as animation
 
-# Fixing random state for reproducibility
-np.random.seed(19680801)
-
-
-def random_walk(num_steps, max_step=0.05):
-    """Return a 3D random walk as (num_steps, 3) array."""
-    start_pos = np.random.random(3)
-    steps = np.random.uniform(-max_step, max_step, size=(num_steps, 3))
-    walk = start_pos + np.cumsum(steps, axis=0)
-    return walk
-
-def sphere(params):
-        sum = 0
-        for p in params:
-            sum += p**2
-        
-        return sum
-
-def update_lines(num, walks, lines):
-    for line, walk in zip(lines, walks):
-        # NOTE: there is no .set_data() for 3 dim data...
-        line.set_data(walk[:num, :2].T)
-        line.set_3d_properties(walk[:num, 2])
-    return lines
-
-
-# Data: 40 random walks as (num_steps, 3) arrays
-num_steps = 30
-walks = [random_walk(num_steps) for index in range(40)]
-
-
 class Visualisation3D:
     def __init__(self, antialiasing = False) -> None:
          self.antialiasing = antialiasing
@@ -80,7 +49,11 @@ class Visualisation3D:
         else:
             raise RuntimeError("Wrong number of axess")
         
-        scatter = ax.scatter(points[0], points[1], points[2], marker='o', c = "red", zorder=5)
+        vertex_colours = [(0,0,0) for _ in range(len(points[0]))]
+        vertex_colours[0] = (0,0,1)
+        vertex_colours[-1] = (1,0,0)
+
+        scatter = ax.scatter(points[0], points[1], points[2], marker='o', c = vertex_colours, zorder=5)
         texts = []
 
         def animFunction(frame, points, scatter):
@@ -98,6 +71,7 @@ class Visualisation3D:
             Z = points[2][:frame + 1]
 
             scatter._offsets3d = (X, Y, Z)
+            scatter.set_color(vertex_colours[:frame + 1])
             
         self.anim = animation.FuncAnimation(self.fig, animFunction, len(points[0]), fargs=(points, scatter), interval=200)
 
