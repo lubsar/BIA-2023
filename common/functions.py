@@ -1,11 +1,20 @@
 import numpy as np
+import random
+import datetime 
 
-#TODO refactor
 from common.interval import *
 
 class TestFunction:
-    def __init__(self, viewPortParams) -> None:
+    def __init__(self, viewPortParams : tuple[tuple[float, float], tuple[float, float], tuple[float, float]]) -> None:
         self.viewPort = Interval3D((*viewPortParams[0], 0.0), (*viewPortParams[1], 0.0), (*viewPortParams[2], 0.0))
+
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()
+
+        self.xScale = xMax - xMin
+        self.yScale = yMax - yMin
+
+        self.samplingSeed = None
 
     def meshInterval(self, num_steps : int) -> Interval2D:
         startX, endX, stepX = self.viewPort.getXInteval()
@@ -16,15 +25,63 @@ class TestFunction:
 
         return Interval2D((startX, endX, stepX), (startY, endY, stepY))
 
-    def getXBounds(self):
+    def getXBounds(self) -> tuple[float, float]:
         startX, endX, stepX = self.viewPort.getXInteval()
         
         return (startX, endX)
-
-    def getYBounds(self):
+    
+    
+    def getYBounds(self) -> tuple[float, float]:
         startY, endY, stepY = self.viewPort.getYInteval()
 
         return (startY, endY)
+    
+    def setSamplingSeed(self, seed) -> None:
+         self.samplingSeed = int(seed)
+
+         random.seed(self.samplingSeed)
+         np.random.seed(self.samplingSeed)
+
+    def getSamplingSeed(self) -> int:
+        return self.samplingSeed
+
+
+    def randomSample(self) -> tuple[float, float, float]:
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()
+
+        x = random.random() * (xMax - xMin) + xMin
+        y = random.random() *  (yMax - yMin) + yMin
+
+        return (x, y, self.calculate((x,y)))
+    
+    def randomSamples(self, num_samples) -> list[tuple[float, float, float]]:
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()
+
+        points = [(random.random() * (xMax - xMin) + xMin, random.random() * (yMax - yMin) + yMin) for _ in range(num_samples)]
+        samples = [(x[0], x[1], self.calculate((x[0], x[1]))) for x in points]
+
+        return samples
+
+    def normalSample(self, center : tuple[float, float], sigma : float) -> tuple[float, float, float]:
+        xSigma = sigma * self.xScale
+        ySigma = sigma * self.yScale
+
+        point = np.random.normal(center, (xSigma, ySigma))
+
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()      
+
+        while point[0] < xMin or point[1] < yMin or point[0] > xMax or point[1] > yMax:
+             point = np.random.normal(center, (xSigma, ySigma))
+
+        value = self.calculate((point[0], point[1]))
+
+        return (*point, value)
+    
+    def normalSamples(self, center : tuple[float, float], sigma : float, num_samples : int) -> list:
+        return [self.normalSample(center, sigma) for _ in range(num_samples)]
 
 class Sphere(TestFunction):
     def __init__(self) -> None:
