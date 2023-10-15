@@ -1,6 +1,4 @@
 import numpy as np
-import random
-import datetime
 import math
 
 from common.visualization import *
