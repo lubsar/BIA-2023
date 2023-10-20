@@ -2,6 +2,7 @@ import blindsearch as bs
 import hillclimbing as hc
 import annealing as an
 import tspga as ga
+import diffevolution as de
 
 import datetime
 
@@ -52,11 +53,10 @@ def test_annealing():
     testAlgo(algo=an.SimulatedAnnealing3D(), seed=seed, deviation=0.05,
              visualResolution=visual_mesh_resolution, searchParams=(initial_temperature, min_temperature, cooling_factor))
 
-
 def test_tsp():
     seed = 59794
     num_generations = 1000
-    num_individuals = 1000
+    num_individuals = 100
     num_cities = 40
 
     np.random.seed(seed)
@@ -90,8 +90,29 @@ def test_tsp():
     visual.saveFig("tsp_{0}_cities_{1}_gens_{2}_individuals_seed{3}-path.pdf".format(num_cities, num_generations, num_individuals, seed))
     visual.show()
 
+def test_diff_evolution():
+    seed = 59794
+    num_generations = 100
+    num_individuals = 100
+
+    functions = Functions() 
+    for _, function in functions.__dict__.items():
+        visual = Visualisation3D()
+
+        algo = de.DifferentialEvolution3D()
+        algo.init(seed, function)
+
+        result = algo.search(num_individuals, num_generations, 0.5, 0.5)
+
+        visual.plot3DFunction(function.viewPort, function.meshInterval(30), function.calculate)
+        visual.plotGenerationsAnimation(result)
+
+        visual.show()
+
+
 #test_blind_search()
 #test_hill_climbing()
 #test_annealing()
+#test_tsp()
 
-test_tsp()
+test_diff_evolution()
