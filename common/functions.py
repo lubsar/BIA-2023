@@ -64,6 +64,14 @@ class TestFunction:
 
         return samples
 
+    def randomPoints(self, num_points) -> list[tuple[float, float]]:
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()
+
+        points = [(random.random() * (xMax - xMin) + xMin, random.random() * (yMax - yMin) + yMin) for _ in range(num_points)]
+        
+        return points
+
     def normalSample(self, center : tuple[float, float], sigma : float) -> tuple[float, float, float]:
         xSigma = sigma * self.xScale
         ySigma = sigma * self.yScale
@@ -82,6 +90,28 @@ class TestFunction:
     
     def normalSamples(self, center : tuple[float, float], sigma : float, num_samples : int) -> list:
         return [self.normalSample(center, sigma) for _ in range(num_samples)]
+    
+    def preserveBounds(self, point) :
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()   
+
+        xSize = xMax - xMin
+        ySize = yMax - yMin
+
+        new_point = point
+
+        if point[0] < xMin:
+            new_point[0] += xSize
+        elif point[0] > xMax:
+            new_point[0] -= xSize
+
+        if point[1] < yMin:
+            new_point[1] += ySize
+        elif point[1] > yMax:
+            new_point[1] -= ySize
+
+        return new_point
+
 
 class Sphere(TestFunction):
     def __init__(self) -> None:

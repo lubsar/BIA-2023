@@ -21,7 +21,8 @@ class Visualisation:
 
 class Visualisation3D(Visualisation):
     def __init__(self, antialiasing = False) -> None:
-         self.antialiasing = antialiasing
+        super().__init__()
+        self.antialiasing = antialiasing
 
     def plotSurface(self, viewport : Interval3D, surface) -> None:
         axes = self.fig.axes
@@ -87,6 +88,32 @@ class Visualisation3D(Visualisation):
             scatter.set_color(vertex_colours[:frame + 1])
             
         self.anim = animation.FuncAnimation(self.fig, animFunction, len(points[0]), fargs=(points, scatter), interval=200)
+
+    def plotGenerationsAnimation(self, point_sets) -> None:
+        axes = self.fig.axes
+        ax = None
+        if len(axes) < 1:
+            ax = self.fig.add_subplot(projection="3d", computed_zorder=False)
+        elif len(axes) == 1:
+            ax = axes[0]
+        else:
+            raise RuntimeError("Wrong number of axess")
+        
+        vertex_colours = [(0,0,0) for _ in range(len(point_sets[0][0]))]
+
+        scatter = ax.scatter(point_sets[0][0], point_sets[0][1], point_sets[0][2], marker='o', c = vertex_colours, zorder=5)
+
+        def animFunction(frame, points, scatter):
+            X = points[frame][0]
+            Y = points[frame][1]
+            Z = points[frame][2]
+
+            scatter._offsets3d = (X, Y, Z)
+
+            ax.set_title("{0}. generation".format(frame + 1))
+            
+        self.anim = animation.FuncAnimation(self.fig, animFunction, len(point_sets), fargs=(point_sets, scatter), interval=200)
+
 
 class Visualisation2D(Visualisation):
     def plotLine(self, values : list[float], y_label : str) -> None:

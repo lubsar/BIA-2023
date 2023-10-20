@@ -140,7 +140,7 @@ class TSPGA:
                 new_individual_path_length = new_individual.calculatePathLength(self.distance_matrix)
                 parent_path_length = first_parent.getPathLength()
 
-                if  new_individual_path_length < parent_path_length:
+                if new_individual_path_length < parent_path_length:
                     new_population[i] = new_individual
 
             population = new_population
