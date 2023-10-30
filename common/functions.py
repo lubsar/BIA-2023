@@ -91,7 +91,7 @@ class TestFunction:
     def normalSamples(self, center : tuple[float, float], sigma : float, num_samples : int) -> list:
         return [self.normalSample(center, sigma) for _ in range(num_samples)]
     
-    def preserveBounds(self, point) :
+    def preserveBoundsLoopAround(self, point) :
         xMin, xMax = self.getXBounds()
         yMin, yMax = self.getYBounds()   
 
@@ -111,7 +111,28 @@ class TestFunction:
             new_point[1] -= ySize
 
         return new_point
+    
+    def preserveBoundsSetAtBorder(self, point):
+        xMin, xMax = self.getXBounds()
+        yMin, yMax = self.getYBounds()   
 
+        new_point = point
+
+        if point[0] < xMin:
+            new_point[0] = xMin
+        elif point[0] > xMax:
+            new_point[0] = xMax
+
+        if point[1] < yMin:
+            new_point[1] = yMin
+        elif point[1] > yMax:
+            new_point[1] = yMax
+
+        return new_point
+    
+    # Implemented by each test function
+    def calculate(self, params) -> float:
+        raise NotImplemented("Calculate function is not implemented")
 
 class Sphere(TestFunction):
     def __init__(self) -> None:

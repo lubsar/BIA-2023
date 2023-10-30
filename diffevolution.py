@@ -21,7 +21,7 @@ class DifferentialEvolution3D:
 
         return (X, Y, Z)
 
-    def search(self, NP : int, G_maxim : int, F : float, CR : float):
+    def search(self, NP : int, G_maxim : int, F : float, CR : float) -> list:
         self.function.setSamplingSeed(self.seed)
         num_dimensions = 2
         num_parents = 3
@@ -57,7 +57,7 @@ class DifferentialEvolution3D:
                     else :
                         trial_vector[j] = individual[j]
 
-                trial_vector = self.function.preserveBounds(trial_vector)
+                trial_vector = self.function.preserveBoundsLoopAround(trial_vector)
                 f_u = self.function.calculate(trial_vector)
 
                 if f_u <= self.function.calculate(individual):

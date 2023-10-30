@@ -3,6 +3,7 @@ import hillclimbing as hc
 import annealing as an
 import tspga as ga
 import diffevolution as de
+import particleswarm as pso
 
 import datetime
 
@@ -109,10 +110,31 @@ def test_diff_evolution():
 
         visual.show()
 
+def test_pso():
+    seed = 59794
+    num_generations = 50
+    num_individuals = 50
+
+    functions = Functions() 
+    for _, function in functions.__dict__.items():
+        visual = Visualisation3D()
+
+        algo = pso.ParticleSwarm3D()
+        algo.init(seed, function)
+
+        result = algo.search(pop_size=num_individuals, M_max=num_generations, 
+                             c1=2.0, c2=2.0, vmaxi_coef=0.02, vmini_coef=0.001,
+                             ws=0.9, we=0.4)
+
+        visual.plot3DFunction(function.viewPort, function.meshInterval(30), function.calculate)
+        visual.plotGenerationsAnimation(result)
+
+        visual.show()
 
 #test_blind_search()
 #test_hill_climbing()
 #test_annealing()
 #test_tsp()
+#test_diff_evolution()
 
-test_diff_evolution()
+test_pso()
