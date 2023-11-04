@@ -4,6 +4,7 @@ import annealing as an
 import tspga as ga
 import diffevolution as de
 import particleswarm as pso
+import somaa2o as soma
 
 import datetime
 
@@ -131,10 +132,33 @@ def test_pso():
 
         visual.show()
 
+def test_soma():
+    seed = 59794
+    num_generations = 100
+    num_individuals = 20
+    PRT = 0.4
+    pathLength = 3.0
+    step = 0.11
+
+    functions = Functions() 
+    for _, function in functions.__dict__.items():
+        visual = Visualisation3D()
+
+        algo = soma.SomaA2O()
+        algo.init(seed, function)
+
+        result = algo.search(num_individuals, PRT, pathLength, step, num_generations)
+
+        visual.plot3DFunction(function.viewPort, function.meshInterval(30), function.calculate)
+        visual.plotGenerationsAnimation(result)
+
+        visual.show()
+
 #test_blind_search()
 #test_hill_climbing()
 #test_annealing()
 #test_tsp()
 #test_diff_evolution()
+#test_pso()
 
-test_pso()
+test_soma()
