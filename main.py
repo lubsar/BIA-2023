@@ -5,6 +5,7 @@ import tspga as ga
 import diffevolution as de
 import particleswarm as pso
 import somaa2o as soma
+import tspaco as aco
 
 import datetime
 
@@ -134,7 +135,7 @@ def test_pso():
 
 def test_soma():
     seed = 59794
-    num_generations = 100
+    num_generations = 20
     num_individuals = 20
     PRT = 0.4
     pathLength = 3.0
@@ -154,11 +155,53 @@ def test_soma():
 
         visual.show()
 
+def test_tsp_aco():
+    seed = 59794
+    num_generations = 1000
+    num_ants = 100
+    num_cities = 20
+
+    np.random.seed(seed)
+
+    points = (np.random.uniform(0, 1.0, num_cities), np.random.uniform(0, 1.0, num_cities))
+    area = Interval2D((-0.1, 1.1, 1.0), (-0.1, 1.1, 1.0))
+    
+    points_list = []
+    for i in range(len(points[0])):
+        points_list.append((points[0][i], points[1][i]))
+
+    algo = aco.TSPACO(points_list, 1.0, 2.0)
+    paths = algo.run(num_generations, num_ants, seed, 0.2)
+
+    path_points = []
+
+    for path in paths:
+        points_x = [points[0][x] for x in path[:-1]]
+        points_y = [points[1][y] for y in path[:-1]]
+
+        path_points.append((points_x, points_y))
+
+    # for individual in sorted_generation:
+    #     print(individual.getPath(), individual.getPathLength())
+
+    #visual = Visualisation2D()
+    # visual.plotLine([x["min"] for x in path_points], "Distance")
+    # visual.plotLine([x["max"] for x in path_points], "Distance")
+    # visual.saveFig("tsp_{0}_cities_{1}_gens_{2}_ants_seed{3}-progress.pdf".format(num_cities, num_generations, num_ants, seed))
+    # visual.show()
+    # visual.cleanup()
+
+    visual = Visualisation2D()
+    visual.plotPathsAnimation(area, path_points)
+    visual.saveFig("tsp_{0}_cities_{1}_gens_{2}_ants_seed{3}-path.pdf".format(num_cities, num_generations, num_ants, seed))
+    visual.show()
+
 #test_blind_search()
 #test_hill_climbing()
 #test_annealing()
 #test_tsp()
 #test_diff_evolution()
 #test_pso()
+#test_soma()
 
-test_soma()
+test_tsp_aco()

@@ -153,6 +153,34 @@ class Visualisation2D(Visualisation):
         for point_index in range(len(points[0])):
             ax.text(points[0][point_index], points[1][point_index], str(point_index + 1), size=12, color="k")
 
+    def plotPathsAnimation(self, area: Interval2D, points : list):
+        ax = self.fig.gca()
+
+        startX, endX, _ = area.getXInteval()
+        startY, endY, _ = area.getYInteval()
+
+        ax.set(xlim=(startX, endX), xlabel='X')
+        ax.set(ylim=(startY, endY), ylabel='Y')
+
+        ax.scatter(points[0][0], points[0][1])
+
+        line, = ax.plot(points[0][0], points[0][1])
+        last_segment, = ax.plot((points[0][0][-1], points[0][0][0]), (points[0][1][-1], points[0][1][0]), c="steelblue")
+
+        # for point_index in range(len(points[0][0])):
+        #     ax.text(points[0][0][point_index], points[0][1][point_index], str(point_index + 1), size=12, color="k")
+
+        def animFunction(frame, points, line, last_segment) -> None:
+            line.set_xdata(points[frame][0])
+            line.set_ydata(points[frame][1])
+
+            last_segment.set_xdata((points[frame][0][-1], points[frame][0][0]))
+            last_segment.set_ydata((points[frame][1][-1], points[frame][1][0]))
+
+            ax.set_title("gen " + str(frame))
+            
+        self.anim = animation.FuncAnimation(self.fig, animFunction, len(points), fargs=(points, line, last_segment), interval=200)
+
     def plotPointsAnimation(self, points, labels = None) -> None:
         axes = self.fig.axes
         ax = None
