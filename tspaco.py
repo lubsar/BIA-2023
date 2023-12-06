@@ -45,7 +45,9 @@ class VisibilityMatrix:
 
         for i in range(self.num_points):
             for o in range(i + 1, self.num_points):
-                visiblity = 1.0 / distance_matrix.at(i,o)
+                visiblity = 1.0 / distance_matrix.at(i, o)
+
+                assert(visiblity <= 1.0)
 
                 self.visiblities[i][o] = visiblity
                 self.visiblities[o][i] = visiblity
@@ -137,12 +139,12 @@ class TSPACO:
 
         return next_city
 
-    def nextAnt(self):
+    def nextAnt(self, starting_city):
         num_cities = self.distance_matrix.num_points
-        path = [0]
+        path = [starting_city]
 
         self.visibility_matrix.unhideColumns()
-        self.visibility_matrix.hideColumn(0)
+        self.visibility_matrix.hideColumn(starting_city)
 
         for _ in range(num_cities - 1):
             next_city = self.nextAntCity(path[-1])
@@ -150,7 +152,7 @@ class TSPACO:
             path.append(next_city)
             self.visibility_matrix.hideColumn(next_city)
 
-        path.append(0)
+        path.append(starting_city)
 
         return path
 
@@ -162,11 +164,15 @@ class TSPACO:
         best_path_length = None
 
         gen_data = []
+       
+        num_cities = self.distance_matrix.num_points
         for gen in range(num_generations):
             ant_paths = []
             
+            city_start = 0
             for i in range(num_ants):
-                ant_paths.append(self.nextAnt())
+                ant_paths.append(self.nextAnt(city_start % num_cities))
+                city_start += 1
 
             self.pheromone_matrix.evaporate(evaporation)
 
@@ -183,5 +189,6 @@ class TSPACO:
                 self.pheromone_matrix.deposit(path, 1.0 / path_length)
 
             gen_data.append(best_path)
+            print(best_path_length)
 
         return gen_data
